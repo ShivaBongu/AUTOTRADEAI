@@ -45,6 +45,11 @@ def get_data(symbol, start, end):
     return yf.download(symbol, start=start, end=end)
 
 data = get_data(stock, start_date, end_date)
+if data.empty:
+    st.error("❌ No stock data found. Try changing the date range or checking the stock symbol.")
+else:
+    st.success(f"✅ Loaded {len(data)} rows of data for {stock} from {start_date} to {end_date}")
+    st.write(data.head())
 
 # Price Chart
 st.subheader(f"💹 Price Chart for {stock}")
