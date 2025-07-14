@@ -41,7 +41,7 @@ st.markdown("""
 st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 
 # Stock Selector
-nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'HDFCBANK.NS']
+nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'AAPL', 'GOOG', 'HDFCBANK.NS']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 
 # Get stock news
@@ -60,6 +60,7 @@ try:
         st.info("No news available at the moment.")
 except Exception as e:
     st.warning(f"Couldn't fetch news: {e}")
+st.write("Debug: News Items", ticker.news)
 
 # Date Range
 st.sidebar.subheader("📅 Select Date Range")
@@ -243,4 +244,4 @@ calculate_profit_loss()
 st.write(f"🛠 Data shape: {data.shape}")
 st.write("🔍 Sample data preview:")
 st.dataframe(data.tail())
-st.write("Debug: News Items", ticker.news)
+
