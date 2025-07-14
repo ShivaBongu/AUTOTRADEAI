@@ -3,6 +3,7 @@ try:
     import streamlit as st
     import yfinance as yf
     import pandas as pd
+    import plotly.graph_objects as go
     import ta
     from datetime import datetime
     import os
@@ -81,6 +82,28 @@ else:
 # Price Chart
 st.subheader(f"💹 Price Chart for {stock}")
 st.line_chart(data['Close'])
+
+# 📊 Candlestick Chart
+if not data.empty:
+    fig = go.Figure(data=[go.Candlestick(
+        x=data.index,
+        open=data['Open'],
+        high=data['High'],
+        low=data['Low'],
+        close=data['Close'],
+        increasing_line_color='green',
+        decreasing_line_color='red'
+    )])
+    fig.update_layout(
+        title=f'Candlestick Chart: {stock}',
+        xaxis_title='Date',
+        yaxis_title='Price (INR)',
+        xaxis_rangeslider_visible=False,
+        height=500
+    )
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("📭 No data available for candlestick chart.")
 
 # Raw Data
 if st.checkbox("Show raw data"):
