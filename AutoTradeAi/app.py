@@ -1,29 +1,15 @@
 # app.py
 try:
     import streamlit as st
-    print("✅ streamlit imported")
     import yfinance as yf
-    print("✅ yfinance imported")
     import pandas as pd
-    print("✅ pandas imported")
     import ta
-    print("✅ ta imported")
+    from datetime import datetime
+    import os
     from model.ai_model import prepare_features, train_and_predict
-    print("✅ model imported")
 except Exception as e:
     import sys
     sys.exit(f"❌ Import Error: {e}")
-
-
-import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
-import yfinance as yf
-import pandas as pd
-import ta
-from datetime import datetime
-import os
-from model.ai_model import prepare_features, train_and_predict
 
 # Page config
 st.set_page_config(page_title="AutoTrade AI", layout="wide")
@@ -70,8 +56,6 @@ if st.checkbox("Show raw data"):
 
 # Technical Indicators
 st.subheader("📊 Technical Indicators")
-
-# Clean data
 data = data.dropna()
 close_series = data['Close'].squeeze()
 
@@ -83,7 +67,7 @@ macd_indicator = ta.trend.MACD(close_series)
 data['MACD'] = macd_indicator.macd()
 data['MACD_Signal'] = macd_indicator.macd_signal()
 
-# Flatten column names in case of MultiIndex issues
+# Flatten columns (if any MultiIndex)
 data.columns = [col if not isinstance(col, tuple) else col[0] for col in data.columns]
 
 # Charts
@@ -93,8 +77,6 @@ st.line_chart(data['RSI'].dropna())
 st.write("**MACD and Signal Line**")
 st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
 
-# AI Prediction
-# AI Prediction
 # AI Prediction
 st.subheader("🤖 AI Prediction")
 prediction = None
@@ -112,7 +94,6 @@ else:
 
 # Simulated Trading
 st.subheader("🎮 Simulated Trading")
-
 col1, col2 = st.columns(2)
 trade_action = None
 
@@ -137,7 +118,6 @@ if trade_action and prediction != -1:
 
 # Show Fake Trade History
 st.subheader("📓 Your Fake Trade History")
-
 try:
     fake_log = pd.read_csv("logs/fake_trades.csv")
     st.dataframe(fake_log[::-1], use_container_width=True)
@@ -146,20 +126,25 @@ except:
 
 # Log AI Prediction
 def log_prediction(stock_name, prediction_value):
-    os.makedirs("logs", exist_ok=True)
-    prediction_text = "BUY" if prediction_value == 1 else "SELL"
-    log_path = "logs/trade_log.csv"
-    date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    new_entry = f"{date_now},{stock_name},{prediction_text}\n"
-    with open(log_path, "a") as f:
-        f.write(new_entry)
+    try:
+        os.makedirs("logs", exist_ok=True)
+        prediction_text = "BUY" if prediction_value == 1 else "SELL"
+        log_path = "logs/trade_log.csv"
+        date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        new_entry = f"{date_now},{stock_name},{prediction_text}\n"
+        if not os.path.exists(log_path):
+            with open(log_path, "w") as f:
+                f.write("Time,Stock,Prediction\n")
+        with open(log_path, "a") as f:
+            f.write(new_entry)
+    except Exception as e:
+        st.warning(f"Error logging prediction: {e}")
 
 if prediction != -1:
     log_prediction(stock, prediction)
 
 # Show Prediction Log
 st.subheader("📜 Trade Log History")
-
 try:
     log_df = pd.read_csv("logs/trade_log.csv")
     st.dataframe(log_df[::-1], use_container_width=True)
@@ -170,14 +155,14 @@ except:
 st.subheader("💰 Trade Performance Summary")
 
 def calculate_profit_loss():
-    try:log_path = "logs/fake_trades.csv"
-if not os.path.exists(log_path):
-    st.info("No trades to evaluate yet.")
-    return
+    try:
+        log_path = "logs/fake_trades.csv"
+        if not os.path.exists(log_path):
+            st.info("No trades to evaluate yet.")
+            return
 
-df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Prediction"])
-
-        df = df[::-1].reset_index(drop=True)  # Show latest first
+        df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Prediction"])
+        df = df[::-1].reset_index(drop=True)
 
         trades = []
         position = None
@@ -195,7 +180,7 @@ df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Predictio
                     "Profit/Loss": pnl,
                     "Timestamp": row["Time"]
                 })
-                position = None  # Reset
+                position = None
 
         trade_df = pd.DataFrame(trades)
         if not trade_df.empty:
@@ -210,7 +195,6 @@ df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Predictio
 
             with st.expander("📋 Trade Summary Table"):
                 st.dataframe(trade_df)
-
         else:
             st.info("You haven't completed any BUY-SELL pair yet to calculate profit.")
     except Exception as e:
