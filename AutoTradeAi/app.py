@@ -41,7 +41,7 @@ st.markdown("""
 st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 
 # Stock Selector
-nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'HDFCBANK.NS','AAPL']
+nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'AAPL']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 
 # Get stock news
