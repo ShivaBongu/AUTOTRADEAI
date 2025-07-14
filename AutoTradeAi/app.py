@@ -2,8 +2,6 @@
 try:
     import streamlit as st
     print("✅ streamlit imported")
-    import plotly.express as px
-    import plotly.graph_objects as go
     import yfinance as yf
     print("✅ yfinance imported")
     import pandas as pd
