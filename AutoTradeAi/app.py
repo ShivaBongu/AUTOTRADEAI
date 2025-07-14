@@ -102,7 +102,7 @@ if data.empty or len(data) < 30:
     st.warning("⚠️ Not enough data to make a prediction. Try selecting a wider date range.")
 else:
     try:
-        prediction = train_and_predict(data)
+    prediction = train_and_predict(data)
     result_text = "📈 AI Predicts: Price will go UP (BUY)" if prediction == 1 else "📉 AI Predicts: Price will go DOWN (SELL)"
     st.success(result_text)
 except Exception as e:
