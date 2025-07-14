@@ -61,7 +61,7 @@ if st.checkbox("Show raw data"):
 
 # Technical Indicators
 st.subheader("📊 Technical Indicators")
-data = data.dropna()
+data = data.dropna(subset=['Close'])
 close_series = data['Close'].squeeze()
 
 # RSI
@@ -71,6 +71,9 @@ data['RSI'] = ta.momentum.RSIIndicator(close_series).rsi()
 macd_indicator = ta.trend.MACD(close_series)
 data['MACD'] = macd_indicator.macd()
 data['MACD_Signal'] = macd_indicator.macd_signal()
+
+st.write("📉 RSI Head:", data['RSI'].head())
+st.write("📈 MACD Head:", data[['MACD', 'MACD_Signal']].head())
 
 # Flatten columns (if any MultiIndex)
 data.columns = [col if not isinstance(col, tuple) else col[0] for col in data.columns]
