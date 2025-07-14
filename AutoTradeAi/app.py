@@ -1,4 +1,19 @@
 # app.py
+try:
+    import streamlit as st
+    print("✅ streamlit imported")
+    import yfinance as yf
+    print("✅ yfinance imported")
+    import pandas as pd
+    print("✅ pandas imported")
+    import ta
+    print("✅ ta imported")
+    from model.ai_model import prepare_features, train_and_predict
+    print("✅ model imported")
+except Exception as e:
+    import sys
+    sys.exit(f"❌ Import Error: {e}")
+
 
 import streamlit as st
 import yfinance as yf
