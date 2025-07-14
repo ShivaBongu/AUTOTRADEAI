@@ -27,6 +27,8 @@ st.markdown("""
             overflow-x: auto;
         }
     </style>
+""", unsafe_allow_html=True)
+
     st.markdown("""
 <style>
     .news-headline {
@@ -34,8 +36,6 @@ st.markdown("""
         font-weight: bold;
     }
 </style>
-""", unsafe_allow_html=True)
-
 """, unsafe_allow_html=True)
 
 st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
