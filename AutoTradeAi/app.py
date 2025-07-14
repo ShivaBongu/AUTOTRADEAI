@@ -37,7 +37,7 @@ stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 
 # Date Range
 st.sidebar.subheader("📅 Select Date Range")
-start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2023-01-01"))
+start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2022-01-01"))
 end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
 
 # Fetch data
@@ -81,6 +81,11 @@ st.line_chart(data['RSI'].dropna())
 
 st.write("**MACD and Signal Line**")
 st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
+
+# Ensure enough valid rows
+valid_rows = data.dropna()
+if valid_rows.shape[0] < 30:
+    st.warning("⚠️ Not enough valid data rows after cleaning. Try selecting a wider date range.")
 
 # AI Prediction
 st.subheader("🤖 AI Prediction")
@@ -206,3 +211,7 @@ def calculate_profit_loss():
         st.warning(f"Error calculating performance: {e}")
 
 calculate_profit_loss()
+st.write(f"🛠 Data shape: {data.shape}")
+st.write("🔍 Sample data preview:")
+st.dataframe(data.tail())
+
