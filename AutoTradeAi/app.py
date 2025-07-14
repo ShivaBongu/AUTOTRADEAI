@@ -42,7 +42,7 @@ st.markdown("""
 st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 
 # Stock Selector
-nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'AAPL', 'GOOG', 'HDFCBANK.NS']
+nifty_stocks = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'META']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 
 # Get stock news
@@ -73,6 +73,8 @@ def get_data(symbol, start, end):
     return yf.download(symbol, start=start, end=end)
 
 data = get_data(stock, start_date, end_date)
+st.write("✅ DEBUG: Downloaded Data", data.head())
+st.write("📏 Data Length:", len(data))
 if data.empty:
     st.error("❌ No stock data found. Try changing the date range or checking the stock symbol.")
 else:
