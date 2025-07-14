@@ -169,8 +169,13 @@ except:
 st.subheader("💰 Trade Performance Summary")
 
 def calculate_profit_loss():
-    try:
-        df = pd.read_csv("logs/fake_trades.csv", names=["Time", "Stock", "Action", "Price", "Prediction"])
+    try:log_path = "logs/fake_trades.csv"
+if not os.path.exists(log_path):
+    st.info("No trades to evaluate yet.")
+    return
+
+df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Prediction"])
+
         df = df[::-1].reset_index(drop=True)  # Show latest first
 
         trades = []
