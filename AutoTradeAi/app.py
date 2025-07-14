@@ -27,6 +27,15 @@ st.markdown("""
             overflow-x: auto;
         }
     </style>
+    st.markdown("""
+<style>
+    .news-headline {
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 """, unsafe_allow_html=True)
 
 st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
@@ -34,6 +43,23 @@ st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 # Stock Selector
 nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'HDFCBANK.NS']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
+
+# Get stock news
+st.subheader("🗞️ Latest News Headlines")
+
+try:
+    ticker = yf.Ticker(stock)
+    news_items = ticker.news[:5]  # Get top 5 latest articles
+
+    if news_items:
+        for item in news_items:
+            st.markdown(f"**[{item['title']}]({item['link']})**")
+            st.caption(f"🗓️ {pd.to_datetime(item['providerPublishTime'], unit='s').strftime('%b %d, %Y')} — {item['publisher']}")
+            st.markdown("---")
+    else:
+        st.info("No news available at the moment.")
+except Exception as e:
+    st.warning(f"Couldn't fetch news: {e}")
 
 # Date Range
 st.sidebar.subheader("📅 Select Date Range")
