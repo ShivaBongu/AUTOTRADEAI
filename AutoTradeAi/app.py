@@ -52,69 +52,34 @@ import plotly.graph_objects as go
 
 st.subheader("📈 Candlestick Chart with Volume")
 
-if data.empty or 'Close' not in data.columns:
-    st.warning("📉 No candlestick data available for the selected date range.")
-else:
-    fig = go.Figure(data=[
-        go.Candlestick(
-            x=data.index,
-            open=data['Open'],
-            high=data['High'],
-            low=data['Low'],
-            close=data['Close'],
-            name="Price"
-        )
-    ])
-    fig.update_layout(
-        xaxis_title='Date',
-        yaxis_title='Price (₹)',
-        xaxis_rangeslider_visible=False,
-        height=500,
-        margin=dict(t=20, b=20)
-    )
+data = get_data(stock, start_date, end_date)
 
-    # Add volume bar chart below
-    volume_fig = go.Figure(data=[
-        go.Bar(x=data.index, y=data['Volume'], marker_color='lightblue', name='Volume')
-    ])
-    volume_fig.update_layout(
-        xaxis_title='Date',
-        yaxis_title='Volume',
-        height=200,
-        margin=dict(t=0, b=20)
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-    st.plotly_chart(volume_fig, use_container_width=True)
 if data.empty or 'Close' not in data.columns:
     st.warning("📉 No price data available for the selected date range. Try changing the date.")
 else:
+    # Show Price Chart
+    st.subheader(f"💹 Price Chart for {stock}")
     st.line_chart(data['Close'])
 
-# Raw Data
-if st.checkbox("Show raw data"):
-    st.write(data.tail())
+    # Technical Indicators
+    st.subheader("📊 Technical Indicators")
 
-# Technical Indicators
-st.subheader("📊 Technical Indicators")
-
-try:
     data = data.dropna()
     close_series = data['Close'].squeeze()
 
+    # RSI
     data['RSI'] = ta.momentum.RSIIndicator(close_series).rsi()
+    st.write("**Relative Strength Index (RSI)**")
+    st.line_chart(data['RSI'].dropna())
+
+    # MACD
     macd_indicator = ta.trend.MACD(close_series)
     data['MACD'] = macd_indicator.macd()
     data['MACD_Signal'] = macd_indicator.macd_signal()
 
-    # Flatten column names
-    data.columns = [col if not isinstance(col, tuple) else col[0] for col in data.columns]
-
-    st.write("**Relative Strength Index (RSI)**")
-    st.line_chart(data['RSI'].dropna())
-
     st.write("**MACD and Signal Line**")
     st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
+
 
 except Exception as e:
     st.warning(f"⚠️ Could not compute indicators: {e}")
