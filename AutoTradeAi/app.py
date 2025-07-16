@@ -32,11 +32,13 @@ st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 # Stock Selector
 nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'HDFCBANK.NS']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
-
-# Date Range
+# Sidebar default dates
 st.sidebar.subheader("📅 Select Date Range")
-start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2022-01-01"))
-end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
+default_start = pd.to_datetime("2023-01-01")
+default_end = pd.to_datetime("today")
+
+start_date = st.sidebar.date_input("Start Date", default_start)
+end_date = st.sidebar.date_input("End Date", default_end)
 
 # Fetch Data
 @st.cache_data
