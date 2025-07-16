@@ -46,11 +46,12 @@ def get_data(symbol, start, end):
 data = get_data(stock, start_date, end_date)
 
 # Price Chart
+# Price Chart
 st.subheader(f"💹 Price Chart for {stock}")
-if not data.empty:
-    st.line_chart(data['Close'])
+if data.empty or 'Close' not in data.columns:
+    st.warning("📉 No price data available for the selected date range. Try changing the date.")
 else:
-    st.warning("⚠️ No data available for the selected range.")
+    st.line_chart(data['Close'])
 
 # Raw Data
 if st.checkbox("Show raw data"):
@@ -58,20 +59,17 @@ if st.checkbox("Show raw data"):
 
 # Technical Indicators
 st.subheader("📊 Technical Indicators")
-data = data.dropna()
 
-if not data.empty:
+try:
+    data = data.dropna()
     close_series = data['Close'].squeeze()
 
-    # RSI
     data['RSI'] = ta.momentum.RSIIndicator(close_series).rsi()
-
-    # MACD
     macd_indicator = ta.trend.MACD(close_series)
     data['MACD'] = macd_indicator.macd()
     data['MACD_Signal'] = macd_indicator.macd_signal()
 
-    # Flatten any MultiIndex
+    # Flatten column names
     data.columns = [col if not isinstance(col, tuple) else col[0] for col in data.columns]
 
     st.write("**Relative Strength Index (RSI)**")
@@ -80,8 +78,9 @@ if not data.empty:
     st.write("**MACD and Signal Line**")
     st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
 
-else:
-    st.warning("⚠️ Not enough clean data to show indicators.")
+except Exception as e:
+    st.warning(f"⚠️ Could not compute indicators: {e}")
+
 
 # AI Prediction
 st.subheader("🤖 AI Prediction")
