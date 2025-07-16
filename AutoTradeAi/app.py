@@ -20,6 +20,19 @@ from model.ai_model import prepare_features, train_and_predict
 # Page config
 st.set_page_config(page_title="AutoTrade AI", layout="wide")
 
+# Page config
+st.set_page_config(page_title="AutoTrade AI", layout="wide")
+
+# 💥 Hide Streamlit's default menu, header, and footer
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
+
 # Custom CSS
 st.markdown("""
     <style>
@@ -207,3 +220,15 @@ def calculate_profit_loss():
         st.warning(f"Error calculating performance: {e}")
 
 calculate_profit_loss()
+
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+    </style>
+    <div style='text-align: center; padding: 10px; font-size: 14px; color: gray;'>
+        🚀 Built with ❤️ by <b>Sri Shiva Goud</b> – AutoTrade AI
+    </div>
+""", unsafe_allow_html=True)
+
