@@ -98,9 +98,12 @@ else:
     st.write("**MACD and Signal Line**")
     st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
 
+try:
+    # Put the code here that calculates indicators
+    df['RSI'] = compute_rsi(df['Close'])
+    df['MACD'], df['Signal'] = compute_macd(df['Close'])
 except Exception as e:
     st.warning(f"⚠️ Could not compute indicators: {e}")
-
 
 # AI Prediction
 st.subheader("🤖 AI Prediction")
