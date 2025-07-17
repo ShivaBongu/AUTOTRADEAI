@@ -1,12 +1,33 @@
 # app.py
-import streamlit as st
 import yfinance as yf
-import pandas as pd
-import ta
-from datetime import datetime
-import os
-from model.ai_model import prepare_features, train_and_predict
 import plotly.graph_objects as go
+import streamlit as st
+
+ticker = st.sidebar.text_input("Enter Stock Ticker", "AAPL")
+start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2023-01-01"))
+end_date = st.sidebar.date_input("End Date", pd.to_datetime("today"))
+
+try:
+    data = yf.download(ticker, start=start_date, end=end_date)
+
+    if not data.empty:
+        fig = go.Figure()
+        fig.add_trace(go.Candlestick(
+            x=data.index,
+            open=data['Open'],
+            high=data['High'],
+            low=data['Low'],
+            close=data['Close'],
+            name='Candlestick'
+        ))
+
+        fig.update_layout(title=f"{ticker} Price Chart", xaxis_rangeslider_visible=False)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("No data found. Try a different ticker or change the date range.")
+
+except Exception as e:
+    st.error(f"Failed to load chart: {e}")
 
 # Page config
 st.set_page_config(page_title="AutoTrade AI", layout="wide")
