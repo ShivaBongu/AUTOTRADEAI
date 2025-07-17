@@ -90,11 +90,27 @@ else:
 
 try:
     # Put the code here that calculates indicators
-    df['RSI'] = compute_rsi(df['Close'])
-    df['MACD'], df['Signal'] = compute_macd(df['Close'])
+    data['RSI'] = ta.momentum.RSIIndicator(data['Close']).rsi()
+    macd = ta.trend.MACD(data['Close'])
+    data['MACD'] = macd.macd()
+    data['MACD_Signal'] = macd.macd_signal()
 except Exception as e:
     st.warning(f"⚠️ Could not compute indicators: {e}")
 
+# 📈 Display candlestick chart
+if not data.empty:
+    fig = go.Figure()
+    fig.add_trace(go.Candlestick(
+        x=data.index,
+        open=data['Open'],
+        high=data['High'],
+        low=data['Low'],
+        close=data['Close'],
+        name='Price'
+    ))
+    fig.update_layout(title="Candlestick Chart", xaxis_rangeslider_visible=False)
+    st.plotly_chart(fig, use_container_width=True)
+    
 # AI Prediction
 st.subheader("🤖 AI Prediction")
 prediction = None
