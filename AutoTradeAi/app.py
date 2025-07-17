@@ -6,14 +6,12 @@ import ta
 from datetime import datetime
 import os
 from model.ai_model import prepare_features, train_and_predict
+import plotly.graph_objects as go
 
 # Page config
 st.set_page_config(page_title="AutoTrade AI", layout="wide")
 
-# Page config
-st.set_page_config(page_title="AutoTrade AI", layout="wide")
-
-# 💥 Hide Streamlit's default menu, header, and footer
+# Hide Streamlit's default menu, header, and footer
 st.markdown("""
     <style>
         #MainMenu {visibility: hidden;}
@@ -21,7 +19,6 @@ st.markdown("""
         header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
-
 
 # Custom CSS
 st.markdown("""
@@ -44,8 +41,9 @@ st.title("📈 AutoTrade AI – Your Personal AI Trading Assistant")
 # Stock Selector
 nifty_stocks = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'ITC.NS', 'HDFCBANK.NS']
 stock = st.selectbox("📌 Choose a stock", nifty_stocks)
+
 # Sidebar default dates
-st.sidebar.subheader("📅 Select Date Range")
+st.sidebar.subheader("🗕️ Select Date Range")
 default_start = pd.to_datetime("2023-01-01")
 default_end = pd.to_datetime("today")
 
@@ -60,45 +58,23 @@ def get_data(symbol, start, end):
 data = get_data(stock, start_date, end_date)
 st.write("📦 Raw Data Fetched:", data.shape)
 
-# Price Chart
-# Price Chart
-st.subheader(f"💹 Price Chart for {stock}")
-import plotly.graph_objects as go
-
-st.subheader("📈 Candlestick Chart with Volume")
-
-data = get_data(stock, start_date, end_date)
-st.write("📦 Raw Data Fetched:", data.shape)
-
+# Indicators and Chart
 if data.empty:
     st.warning("⚠️ No data available to calculate technical indicators.")
 else:
-    # RSI
-    data['RSI'] = ta.momentum.RSIIndicator(data['Close']).rsi()
-
-    # MACD
-    macd_indicator = ta.trend.MACD(data['Close'])
-    data['MACD'] = macd_indicator.macd()
-    data['MACD_Signal'] = macd_indicator.macd_signal()
-
-    # Charts
-    st.write("**Relative Strength Index (RSI)**")
-    st.line_chart(data['RSI'].dropna())
-
-    st.write("**MACD and Signal Line**")
-    st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
-
-try:
-    # Put the code here that calculates indicators
     data['RSI'] = ta.momentum.RSIIndicator(data['Close']).rsi()
     macd = ta.trend.MACD(data['Close'])
     data['MACD'] = macd.macd()
     data['MACD_Signal'] = macd.macd_signal()
-except Exception as e:
-    st.warning(f"⚠️ Could not compute indicators: {e}")
 
-# 📈 Display candlestick chart
-if not data.empty:
+    st.subheader("**Relative Strength Index (RSI)**")
+    st.line_chart(data['RSI'].dropna())
+
+    st.subheader("**MACD and Signal Line**")
+    st.line_chart(data[['MACD', 'MACD_Signal']].dropna())
+
+    st.subheader("📈 Candlestick Chart")
+    data.index = pd.to_datetime(data.index)
     fig = go.Figure()
     fig.add_trace(go.Candlestick(
         x=data.index,
@@ -108,9 +84,13 @@ if not data.empty:
         close=data['Close'],
         name='Price'
     ))
-    fig.update_layout(title="Candlestick Chart", xaxis_rangeslider_visible=False)
+    fig.update_layout(
+        title="Candlestick Chart",
+        xaxis_rangeslider_visible=False,
+        template="plotly_dark"
+    )
     st.plotly_chart(fig, use_container_width=True)
-    
+
 # AI Prediction
 st.subheader("🤖 AI Prediction")
 prediction = None
@@ -150,7 +130,7 @@ if trade_action and prediction != -1:
     log_fake_trade(stock, trade_action, current_price, prediction)
     st.success(f"📝 Trade Executed: {trade_action} at ₹{current_price}")
 
-# Show Fake Trade History
+# Fake Trade History
 st.subheader("📓 Your Fake Trade History")
 try:
     fake_log = pd.read_csv("logs/fake_trades.csv")
@@ -158,7 +138,8 @@ try:
 except:
     st.info("No fake trades executed yet.")
 
-# Log AI Prediction
+# AI Prediction Log
+
 def log_prediction(stock_name, prediction_value):
     os.makedirs("logs", exist_ok=True)
     prediction_text = "BUY" if prediction_value == 1 else "SELL"
@@ -171,7 +152,6 @@ def log_prediction(stock_name, prediction_value):
 if prediction != -1:
     log_prediction(stock, prediction)
 
-# Show Prediction Log
 st.subheader("📜 Trade Log History")
 try:
     log_df = pd.read_csv("logs/trade_log.csv")
@@ -240,4 +220,3 @@ st.markdown("""
         🚀 Built with ❤️ by <b>Sri Shiva Goud</b> – AutoTrade AI
     </div>
 """, unsafe_allow_html=True)
-
