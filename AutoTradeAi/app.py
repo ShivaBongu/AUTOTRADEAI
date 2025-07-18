@@ -1,7 +1,8 @@
 # app.py
-import yfinance as yf
-import plotly.graph_objects as go
 import streamlit as st
+import pandas as pd
+import yfinance as yf
+import plotly.graph_objs as go
 
 ticker = st.sidebar.text_input("Enter Stock Ticker", "AAPL")
 start_date = st.sidebar.date_input("Start Date", pd.to_datetime("2023-01-01"))
