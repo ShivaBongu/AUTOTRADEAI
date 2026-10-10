@@ -37,7 +37,16 @@ stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 # Fetch stock data
 @st.cache_data
 def get_data(symbol, start, end):
-    return yf.download(symbol, start=start, end=end)
+    # yfinance 0.2.65 returns a MultiIndex and warns when auto_adjust is omitted.
+    # Flat columns match the RSI, MACD, and candlestick code below.
+    return yf.download(
+        symbol,
+        start=start,
+        end=end,
+        auto_adjust=True,
+        multi_level_index=False,
+        progress=False,
+    )
 
 data = get_data(stock, start_date, end_date)
 st.write("📦 Raw Data Fetched:", data.shape)
@@ -101,8 +110,16 @@ trade_action = None
 
 if col1.button("✅ Execute BUY Trade"):
     trade_action = "BUY"
-elif col2.button("❌ Execute SELL Trade"):
+if col2.button("❌ Execute SELL Trade"):
     trade_action = "SELL"
+
+def read_log(path, columns, valid_column, valid_values):
+    frame = pd.read_csv(path, names=columns)
+    if "Price" in frame.columns:
+        frame["Price"] = pd.to_numeric(frame["Price"], errors="coerce")
+    frame = frame[frame[valid_column].isin(valid_values)]
+    return frame.dropna()
+
 
 def log_fake_trade(stock, action, price, prediction):
     os.makedirs("logs", exist_ok=True)
@@ -120,7 +137,12 @@ if trade_action and prediction != -1:
 # Show Trade History
 st.subheader("📓 Your Fake Trade History")
 try:
-    log = pd.read_csv("logs/fake_trades.csv", names=["Time", "Stock", "Action", "Price", "Prediction"])
+    log = read_log(
+        "logs/fake_trades.csv",
+        ["Time", "Stock", "Action", "Price", "Prediction"],
+        "Action",
+        ["BUY", "SELL"],
+    )
     st.dataframe(log[::-1], use_container_width=True)
 except:
     st.info("No fake trades executed yet.")
@@ -139,7 +161,12 @@ if prediction != -1:
 
 st.subheader("📜 Trade Log History")
 try:
-    log_df = pd.read_csv("logs/trade_log.csv", names=["Time", "Stock", "Prediction"])
+    log_df = read_log(
+        "logs/trade_log.csv",
+        ["Time", "Stock", "Prediction"],
+        "Prediction",
+        ["BUY", "SELL"],
+    )
     st.dataframe(log_df[::-1], use_container_width=True)
 except:
     st.warning("⚠️ No trade logs found yet.")
@@ -153,7 +180,12 @@ def calculate_profit_loss():
         return
 
     try:
-        df = pd.read_csv(log_path, names=["Time", "Stock", "Action", "Price", "Prediction"])
+        df = read_log(
+            log_path,
+            ["Time", "Stock", "Action", "Price", "Prediction"],
+            "Action",
+            ["BUY", "SELL"],
+        )
         df = df[::-1].reset_index(drop=True)
 
         trades = []
