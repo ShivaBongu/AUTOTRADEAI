@@ -37,7 +37,16 @@ stock = st.selectbox("📌 Choose a stock", nifty_stocks)
 # Fetch stock data
 @st.cache_data
 def get_data(symbol, start, end):
-    return yf.download(symbol, start=start, end=end)
+    # yfinance 0.2.65 returns a MultiIndex and warns when auto_adjust is omitted.
+    # Flat columns match the RSI, MACD, and candlestick code below.
+    return yf.download(
+        symbol,
+        start=start,
+        end=end,
+        auto_adjust=True,
+        multi_level_index=False,
+        progress=False,
+    )
 
 data = get_data(stock, start_date, end_date)
 st.write("📦 Raw Data Fetched:", data.shape)
